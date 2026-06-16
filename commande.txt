@@ -1,0 +1,5 @@
+Installation 
+    -python -m venv venv
+    -python -m pip install django djangorestframework django-cors-headers python-dotenv pillow
+    -python -m django startproject config .
+    -python manage.py startapp vehicule
