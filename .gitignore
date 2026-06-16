@@ -1,0 +1,20 @@
+# Environnement virtuel
+venv/
+env/
+ENV/
+
+# Base de données locale (SQLite)
+*.sqlite3
+
+# Cache Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Fichiers de configuration d'environnement (si vous utilisez python-dotenv plus tard)
+.env
+
+# Fichiers d'éditeurs de code
+.vscode/
+.idea/
