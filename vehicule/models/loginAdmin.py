@@ -12,8 +12,8 @@ class Loginadmin(AbstractBaseUser):
     derniere_connexion = models.DateTimeField(null=True, blank=True)
 
     # Configuration requise pour l'authentification Django
-    USERNAME_FIELD = 'username'  # Le champ principal pour se connecter
-    REQUIRED_FIELDS = ['email', 'nom', 'prenom']
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['email', 'nom', 'prenom', 'username']
 
     class Meta:
         verbose_name = 'Administrateur'

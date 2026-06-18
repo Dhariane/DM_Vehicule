@@ -18,7 +18,6 @@ from vehicule.services import (
     connecter_utilisateur,
     connecter_admin,
     get_tokens_for_user,
-    get_admin_session,
     register_admin
 )
 class LoginController(APIView):
@@ -71,7 +70,7 @@ class MeController(APIView):
 
 class LoginAdminController(APIView):
     permission_classes = [AllowAny]
-    authentication_classes = [] 
+    authentication_classes = []
 
     def post(self, request):
         ser = LoginAdminSerializer(data=request.data)
@@ -124,7 +123,7 @@ class MeAdminController(APIView):
 
 class RegisterAdminController(APIView):
     permission_classes = [AllowAny]
-    authentication_classes = [] 
+    authentication_classes = []
     def post(self, request):
         serializer = CreerLoginadminSerializer(data=request.data)
         if not serializer.is_valid():

@@ -9,6 +9,7 @@ class Demandeur(AbstractUser):
         ('Logistique', 'Responsable Logistique'),
         ('Directeur', 'Directeur'),
     ]
+    email = models.EmailField(unique=True)
 
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='Demandeur')
     telephone = models.CharField(max_length=20, blank=True)
@@ -21,6 +22,8 @@ class Demandeur(AbstractUser):
         related_name='subordonnes',
         limit_choices_to={'role': 'Chef'},
     )
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
 
     def get_email_chef(self):
         if self.chef_direct and self.chef_direct.email:

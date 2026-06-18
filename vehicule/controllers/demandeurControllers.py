@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from permission import IsJWTAdmin
 from vehicule.dto import (
     DemandeurSerializer,
     CreerDemandeurSerializer,
@@ -8,7 +9,6 @@ from vehicule.dto import (
 )
 from vehicule.models.demandeur import Demandeur
 from vehicule.services import (
-    is_admin,
     get_all_demandeurs,
     get_demandeur_by_id,
     creer_demandeur,
@@ -18,11 +18,9 @@ from vehicule.services import (
 
 
 class DemandeurListCreateController(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsJWTAdmin]
 
     def get(self, request):
-        if not is_admin(request):
-            return Response({'error': 'Accès réservé à l\'admin'}, status=403)
             
         role_filter = request.query_params.get('role', None)
         
@@ -34,8 +32,6 @@ class DemandeurListCreateController(APIView):
         return Response(DemandeurSerializer(users, many=True).data)
 
     def post(self, request):
-        if not is_admin(request):
-            return Response({'error': 'Accès réservé à l\'admin'}, status=403)
         ser = CreerDemandeurSerializer(data=request.data)
         if not ser.is_valid():
             return Response(ser.errors, status=400)
@@ -44,19 +40,15 @@ class DemandeurListCreateController(APIView):
 
 
 class DemandeurDetailController(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsJWTAdmin]
 
     def get(self, request, pk):
-        if not is_admin(request):
-            return Response({'error': 'Accès réservé'}, status=403)
         user = get_demandeur_by_id(pk)
         if not user:
             return Response({'error': 'Introuvable'}, status=404)
         return Response(DemandeurSerializer(user).data)
 
     def put(self, request, pk):
-        if not is_admin(request):
-            return Response({'error': 'Accès réservé'}, status=403)
         user = get_demandeur_by_id(pk)
         if not user:
             return Response({'error': 'Introuvable'}, status=404)
@@ -67,8 +59,6 @@ class DemandeurDetailController(APIView):
         return Response(DemandeurSerializer(user).data)
 
     def delete(self, request, pk):
-        if not is_admin(request):
-            return Response({'error': 'Accès réservé'}, status=403)
         user = get_demandeur_by_id(pk)
         if not user:
             return Response({'error': 'Introuvable'}, status=404)

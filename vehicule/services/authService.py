@@ -2,6 +2,9 @@ from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth import authenticate
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+from rest_framework.exceptions import AuthenticationFailed
+from vehicule.models.demandeur import Demandeur
+from vehicule.models import Loginadmin
 from rest_framework_simplejwt.tokens import RefreshToken
 from vehicule.models import Loginadmin
 
@@ -16,40 +19,36 @@ def get_tokens_for_user(user):
 
 
 def connecter_utilisateur(email, password, request):
-    user = authenticate(request, email=email, password=password)
-    if not user:
+    """Authentifie un Demandeur (Utilisateur standard)."""
+    # 1. Double vérification manuelle au cas où le ModelBackend de Django fait des siennes
+    try:
+        user = Demandeur.objects.get(email=email)
+    except Demandeur.DoesNotExist:
         return None, "Identifiants invalides"
+
+    # Vérification du mot de passe hashé
+    if not check_password(password, user.password):
+        return None, "Identifiants invalides"
+
     if not user.is_active:
         return None, "Compte désactivé"
+        
     return user, None
 
-
 def connecter_admin(email, password):
+    """Authentifie un Administrateur (Table Loginadmin)."""
     try:
+        # CORRECTION : On cherche par l'email de l'admin (pas le username) et SANS le password en clair
         admin = Loginadmin.objects.get(email=email, is_active=True)
     except Loginadmin.DoesNotExist:
         return None
 
+    # CORRECTION : On utilise l'outil natif de Django pour comparer le hash
     if not check_password(password, admin.password):
         return None
 
-    admin.derniere_connexion = timezone.now()
-    admin.save(update_fields=['derniere_connexion'])
     return admin
 
-
-def get_admin_session(request):
-    admin_id = request.session.get('admin_id')
-    if not admin_id:
-        return None
-    try:
-        return Loginadmin.objects.get(pk=admin_id, is_active=True)
-    except Loginadmin.DoesNotExist:
-        return None
-
-
-def is_admin(request):
-    return get_admin_session(request) is not None
 
 def register_admin(username, password, email, nom, prenom):
         if Loginadmin.objects.filter(username=username).exists():

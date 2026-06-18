@@ -1,9 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from permission import IsJWTAdmin
 from vehicule.dto import VehiculeSerializer, CreerVehiculeSerializer
 from vehicule.services import (
-    is_admin,
     get_all_vehicules,
     get_vehicule_by_id,
     creer_vehicule,
@@ -13,15 +13,13 @@ from vehicule.services import (
 
 
 class VehiculeListCreateController(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsJWTAdmin]
 
     def get(self, request):
         vehicules = get_all_vehicules()
         return Response(VehiculeSerializer(vehicules, many=True).data)
 
     def post(self, request):
-        if not is_admin(request):
-            return Response({'error': 'Accès réservé à l\'admin'}, status=403)
         ser = CreerVehiculeSerializer(data=request.data)
         if not ser.is_valid():
             return Response(ser.errors, status=400)
@@ -30,7 +28,7 @@ class VehiculeListCreateController(APIView):
 
 
 class VehiculeDetailController(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsJWTAdmin]
 
     def get(self, request, pk):
         vehicule = get_vehicule_by_id(pk)
@@ -39,8 +37,6 @@ class VehiculeDetailController(APIView):
         return Response(VehiculeSerializer(vehicule).data)
 
     def put(self, request, pk):
-        if not is_admin(request):
-            return Response({'error': 'Accès réservé'}, status=403)
         vehicule = get_vehicule_by_id(pk)
         if not vehicule:
             return Response({'error': 'Introuvable'}, status=404)
@@ -51,8 +47,6 @@ class VehiculeDetailController(APIView):
         return Response(VehiculeSerializer(vehicule).data)
 
     def delete(self, request, pk):
-        if not is_admin(request):
-            return Response({'error': 'Accès réservé'}, status=403)
         vehicule = get_vehicule_by_id(pk)
         if not vehicule:
             return Response({'error': 'Introuvable'}, status=404)
