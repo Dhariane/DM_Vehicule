@@ -1,12 +1,10 @@
-from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
 from django.utils import timezone
 from rest_framework_simplejwt.tokens import RefreshToken
-from vehicule.models import Loginadmin
+from vehicule.models import Demandeur, Loginadmin
 
 
 def get_tokens_for_user(user):
-    """Génère access + refresh token pour un utilisateur."""
     refresh = RefreshToken.for_user(user)
     return {
         'refresh': str(refresh),
@@ -14,18 +12,26 @@ def get_tokens_for_user(user):
     }
 
 
-def connecter_utilisateur(username, password, request):
-    user = authenticate(request, username=username, password=password)
-    if not user:
+def connecter_utilisateur(email, password):
+    """Cherche l'utilisateur par email et vérifie le mot de passe."""
+    try:
+        user = Demandeur.objects.get(email=email)
+    except Demandeur.DoesNotExist:
         return None, "Identifiants invalides"
+
+    if not user.check_password(password):
+        return None, "Identifiants invalides"
+
     if not user.is_active:
         return None, "Compte désactivé"
+
     return user, None
 
 
-def connecter_admin(username, password):
+def connecter_admin(email, password):
+    """Cherche l'admin par email et vérifie le mot de passe."""
     try:
-        admin = Loginadmin.objects.get(username=username, is_active=True)
+        admin = Loginadmin.objects.get(email=email, is_active=True)
     except Loginadmin.DoesNotExist:
         return None
 
