@@ -16,18 +16,23 @@ def get_tokens_for_user(user):
     }
 
 
-def connecter_utilisateur(email, password, request):
-    user = authenticate(request, email=email, password=password)
-    if not user:
+from django.contrib.auth import get_user_model
+
+def connecter_utilisateur(email, password):
+    User = get_user_model()
+    try:
+        # 1. On cherche l'utilisateur dans la base de données grâce à son email
+        user = User.objects.get(email=email)
+        
+        # 2. On vérifie si le mot de passe est correct et si le compte est actif
+        if user.check_password(password) and user.is_active:
+            return user, None
+        else:
+            return None, "Identifiants invalides"
+            
+    except User.DoesNotExist:
+        # Si aucun utilisateur n'a cet email
         return None, "Identifiants invalides"
-
-    if not user.check_password(password):
-        return None, "Identifiants invalides"
-
-    if not user.is_active:
-        return None, "Compte désactivé"
-
-    return user, None
 
 
 def connecter_admin(email, password):
