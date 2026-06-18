@@ -31,7 +31,6 @@ class LoginController(APIView):
         user, error = connecter_utilisateur(
             ser.validated_data['email'],
             ser.validated_data['password'],
-            request,
         )
         if error:
             return Response({'error': error}, status=401)

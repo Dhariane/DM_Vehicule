@@ -36,6 +36,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 REST_FRAMEWORK = {
+
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'authentications.HybridJWTAuthentication',
     ),
@@ -47,13 +48,7 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=8),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
-    'AUTH_HEADER_TYPES': ('Bearer',),
-}
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -67,10 +62,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'vehicule',
 ]
-CORS_ALLOW_CREDENTIALS = True  # Permet aux cookies de transiter entre le front et le back
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Remplacez par l'URL exacte de votre frontend
-]
+
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -82,12 +74,17 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+CORS_ALLOW_CREDENTIALS = True  # Permet aux cookies de transiter entre le front et le back
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://172.31.176.1:3000",
+    "http://localhost:3000",  # Remplacez par l'URL exacte de votre frontend
 ]
 
-
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'authorization',
+    'content-type',
+    'x-csrftoken',
+]
 
 # Désactiver CSRF complètement pour les tests Postman
 CSRF_COOKIE_SECURE = False
