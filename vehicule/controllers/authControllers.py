@@ -4,28 +4,26 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.utils.decorators import method_decorator
-from django.view.decorators.csrf import csrf_exempt
 from django.core.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.utils import timezone
 from vehicule.dto import (
     LoginDemandeurSerializer,
     DemandeurSerializer,
     LoginAdminSerializer,
     LoginadminSerializer,
     CreerLoginadminSerializer,
-    CreerDemandeurSerializer
 )
 from vehicule.services import (
     connecter_utilisateur,
     connecter_admin,
     get_tokens_for_user,
     get_admin_session,
+    register_admin
 )
-
-@method_decorator(csrf_exempt, name='dispatch')
 class LoginController(APIView):
     permission_classes = [AllowAny]
-
+    authentication_classes = []
     def post(self, request):
         ser = LoginDemandeurSerializer(data=request.data)
         if not ser.is_valid():
@@ -71,9 +69,9 @@ class MeController(APIView):
             **DemandeurSerializer(request.user).data,
         })
 
-
 class LoginAdminController(APIView):
     permission_classes = [AllowAny]
+    authentication_classes = [] 
 
     def post(self, request):
         ser = LoginAdminSerializer(data=request.data)
@@ -87,11 +85,19 @@ class LoginAdminController(APIView):
         if not admin:
             return Response({'error': 'Identifiants invalides'}, status=401)
 
-        request.session['admin_id'] = admin.pk
-        request.session['admin_username'] = admin.username
+        admin.derniere_connexion = timezone.now()
+        admin.save(update_fields=['derniere_connexion'])
+
+        refresh = RefreshToken()
+        
+        refresh['user_id'] = admin.pk
+        refresh['type'] = 'admin'
+        refresh['username'] = admin.username
 
         return Response({
             'type': 'admin',
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
             **LoginadminSerializer(admin).data,
         })
 
