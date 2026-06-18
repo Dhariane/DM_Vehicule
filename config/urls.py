@@ -21,7 +21,5 @@ from vehicule.controllers import (
     LoginAdminController,
 )
 urlpatterns = [
-    path('admin/auth/admin/login/', csrf_exempt(LoginAdminController.as_view())),
-    path('admin/', admin.site.urls),
-    path('api/', include('vehicule.urls')),
+    path('api/auth/admin/login/', csrf_exempt(LoginAdminController.as_view())),
 ]

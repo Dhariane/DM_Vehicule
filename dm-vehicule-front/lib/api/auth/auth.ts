@@ -2,7 +2,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 
 const vehicule_api = process.env.NEXT_PUBLIC_VEHICULE_API || '';
-
+const vehicule_admin = process.env.NEXT_PUBLIC_VEHICULE_ADMIN || '';
 interface LoginResult {
   status: number;
   success?: boolean;

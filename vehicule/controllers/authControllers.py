@@ -30,7 +30,7 @@ class LoginController(APIView):
             return Response(ser.errors, status=400)
 
         user, error = connecter_utilisateur(
-            ser.validated_data['username'],
+            ser.validated_data['email'],
             ser.validated_data['password'],
             request,
         )
@@ -79,7 +79,7 @@ class LoginAdminController(APIView):
             return Response(ser.errors, status=400)
 
         admin = connecter_admin(
-            ser.validated_data['username'],
+            ser.validated_data['email'],
             ser.validated_data['password'],
         )
         if not admin:

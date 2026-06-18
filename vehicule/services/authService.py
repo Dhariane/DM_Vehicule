@@ -14,8 +14,8 @@ def get_tokens_for_user(user):
     }
 
 
-def connecter_utilisateur(username, password, request):
-    user = authenticate(request, username=username, password=password)
+def connecter_utilisateur(email, password, request):
+    user = authenticate(request, email=email, password=password)
     if not user:
         return None, "Identifiants invalides"
     if not user.is_active:
@@ -23,9 +23,9 @@ def connecter_utilisateur(username, password, request):
     return user, None
 
 
-def connecter_admin(username, password):
+def connecter_admin(email, password):
     try:
-        admin = Loginadmin.objects.get(username=username, is_active=True)
+        admin = Loginadmin.objects.get(email=email, is_active=True)
     except Loginadmin.DoesNotExist:
         return None
 

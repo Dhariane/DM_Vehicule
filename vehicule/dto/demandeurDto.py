@@ -100,7 +100,7 @@ class UpdateDemandeurSerializer(serializers.ModelSerializer):
 
 
 class LoginDemandeurSerializer(serializers.Serializer):
-    username = serializers.CharField()
+    email = serializers.EmailField(required=True)
     password = serializers.CharField(write_only=True)
 
 class ChefOptionSerializer(serializers.ModelSerializer):
