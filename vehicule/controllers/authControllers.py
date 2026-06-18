@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.utils.decorators import method_decorator
 from django.view.decorators.csrf import csrf_exempt
 from django.core.exceptions import ValidationError
+from rest_framework_simplejwt.tokens import RefreshToken
 from vehicule.dto import (
     LoginDemandeurSerializer,
     DemandeurSerializer,
@@ -14,7 +15,12 @@ from vehicule.dto import (
     CreerLoginadminSerializer,
     CreerDemandeurSerializer
 )
-from vehicule.services import connecter_admin, get_admin_session, register_admin
+from vehicule.services import (
+    connecter_utilisateur,
+    connecter_admin,
+    get_tokens_for_user,
+    get_admin_session,
+)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class LoginController(APIView):
@@ -25,19 +31,19 @@ class LoginController(APIView):
         if not ser.is_valid():
             return Response(ser.errors, status=400)
 
-        user = authenticate(
+        user, error = connecter_utilisateur(
+            ser.validated_data['username'],
+            ser.validated_data['password'],
             request,
-            username=ser.validated_data['username'],
-            password=ser.validated_data['password'],
         )
-        if not user:
-            return Response({'error': 'Identifiants invalides'}, status=401)
-        if not user.is_active:
-            return Response({'error': 'Compte désactivé'}, status=403)
+        if error:
+            return Response({'error': error}, status=401)
 
-        login(request, user)
+        tokens = get_tokens_for_user(user)
         return Response({
             'type': 'utilisateur',
+            'access': tokens['access'],
+            'refresh': tokens['refresh'],
             **DemandeurSerializer(user).data,
         })
 
@@ -46,7 +52,13 @@ class LogoutController(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        logout(request)
+        try:
+            refresh_token = request.data.get('refresh')
+            if refresh_token:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+        except Exception:
+            pass
         return Response({'message': 'Déconnexion réussie'})
 
 

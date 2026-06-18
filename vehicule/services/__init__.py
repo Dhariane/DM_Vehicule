@@ -1,5 +1,10 @@
-from .authService import connecter_admin, get_admin_session, is_admin, register_admin
-
+from .authService import (
+    connecter_utilisateur,
+    connecter_admin,
+    get_tokens_for_user,
+    get_admin_session,
+    is_admin,
+)
 from .demandeurService import (
     get_all_demandeurs,
     get_demandeur_by_id,
@@ -25,7 +30,7 @@ from .validateurService import (
     get_validations_by_demande,
     creer_validation,
 )
-from .demandeService import (        # ← ici c'était demandeurService, c'est faux
+from .demandeService import (
     get_mes_demandes,
     get_demande_by_id,
     creer_demande,

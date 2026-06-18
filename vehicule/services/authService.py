@@ -1,6 +1,26 @@
 from django.contrib.auth.hashers import check_password, make_password
+from django.contrib.auth import authenticate
 from django.utils import timezone
+from rest_framework_simplejwt.tokens import RefreshToken
 from vehicule.models import Loginadmin
+
+
+def get_tokens_for_user(user):
+    """Génère access + refresh token pour un utilisateur."""
+    refresh = RefreshToken.for_user(user)
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
+
+
+def connecter_utilisateur(username, password, request):
+    user = authenticate(request, username=username, password=password)
+    if not user:
+        return None, "Identifiants invalides"
+    if not user.is_active:
+        return None, "Compte désactivé"
+    return user, None
 
 
 def connecter_admin(username, password):
