@@ -7,6 +7,7 @@ from vehicule.controllers import (
     VehiculeListCreateController, VehiculeDetailController,
     MesDemandesController, DetailDemandeController,
     ValidationListController, ValidationActionController,
+    RegisterAdminController
 )
 
 urlpatterns = [
@@ -19,6 +20,7 @@ urlpatterns = [
     path('auth/admin/login/', LoginAdminController.as_view()),
     path('auth/admin/logout/', LogoutAdminController.as_view()),
     path('auth/admin/me/', MeAdminController.as_view()),
+    path('auth/admin/register/', RegisterAdminController.as_view()),
 
     # Demandeurs
     path('demandeurs/', DemandeurListCreateController.as_view()),

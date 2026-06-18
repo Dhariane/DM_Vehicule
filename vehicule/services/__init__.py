@@ -1,4 +1,4 @@
-from .authService import connecter_admin, get_admin_session, is_admin
+from .authService import connecter_admin, get_admin_session, is_admin, register_admin
 
 from .demandeurService import (
     get_all_demandeurs,

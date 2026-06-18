@@ -1,16 +1,22 @@
 from django.contrib.auth import authenticate, login, logout
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.utils.decorators import method_decorator
+from django.view.decorators.csrf import csrf_exempt
+from django.core.exceptions import ValidationError
 from vehicule.dto import (
     LoginDemandeurSerializer,
     DemandeurSerializer,
     LoginAdminSerializer,
     LoginadminSerializer,
+    CreerLoginadminSerializer,
+    CreerDemandeurSerializer
 )
-from vehicule.services import connecter_admin, get_admin_session
+from vehicule.services import connecter_admin, get_admin_session, register_admin
 
-
+@method_decorator(csrf_exempt, name='dispatch')
 class LoginController(APIView):
     permission_classes = [AllowAny]
 
@@ -97,3 +103,32 @@ class MeAdminController(APIView):
             'type': 'admin',
             **LoginadminSerializer(admin).data,
         })
+
+class RegisterAdminController(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        serializer = CreerLoginadminSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+        validated_data = serializer.validated_data
+        try:
+            new_admin = register_admin(
+                username=validated_data['username'],
+                password=validated_data['password'],
+                email=validated_data['email'],
+                nom=validated_data['nom'],
+                prenom=validated_data['prenom']
+            )
+            
+            return Response({
+                "message": "Administrateur créé avec succès !",
+                "admin": {
+                    "id": new_admin.id,
+                    "username": new_admin.username,
+                    "email": new_admin.email
+                }
+            }, status=status.HTTP_201_CREATED)
+            
+        except ValidationError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

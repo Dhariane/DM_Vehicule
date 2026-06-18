@@ -6,6 +6,7 @@ from vehicule.dto import (
     CreerDemandeurSerializer,
     UpdateDemandeurSerializer,
 )
+from vehicule.models.demandeur import Demandeur
 from vehicule.services import (
     is_admin,
     get_all_demandeurs,
@@ -22,7 +23,14 @@ class DemandeurListCreateController(APIView):
     def get(self, request):
         if not is_admin(request):
             return Response({'error': 'Accès réservé à l\'admin'}, status=403)
-        users = get_all_demandeurs()
+            
+        role_filter = request.query_params.get('role', None)
+        
+        if role_filter:
+            users = Demandeur.objects.filter(role=role_filter, is_active=True)
+        else:
+            users = get_all_demandeurs() 
+            
         return Response(DemandeurSerializer(users, many=True).data)
 
     def post(self, request):
