@@ -3,6 +3,7 @@ from xml.dom import ValidationErr
 from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth import authenticate
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
 from vehicule.models import Demandeur, Loginadmin
 
