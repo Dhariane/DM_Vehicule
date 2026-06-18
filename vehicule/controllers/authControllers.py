@@ -1,32 +1,36 @@
-from django.contrib.auth import logout
+from django.contrib.auth import authenticate, login, logout
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.utils.decorators import method_decorator
+from django.core.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.utils import timezone
 from vehicule.dto import (
     LoginDemandeurSerializer,
     DemandeurSerializer,
     LoginAdminSerializer,
     LoginadminSerializer,
+    CreerLoginadminSerializer,
 )
 from vehicule.services import (
     connecter_utilisateur,
     connecter_admin,
     get_tokens_for_user,
     get_admin_session,
+    register_admin
 )
-
-
 class LoginController(APIView):
     permission_classes = [AllowAny]
-
+    authentication_classes = []
     def post(self, request):
         ser = LoginDemandeurSerializer(data=request.data)
         if not ser.is_valid():
             return Response(ser.errors, status=400)
 
         user, error = connecter_utilisateur(
-            ser.validated_data['email'],       # ← email
+            ser.validated_data['email'],
             ser.validated_data['password'],
         )
         if error:
@@ -64,9 +68,9 @@ class MeController(APIView):
             **DemandeurSerializer(request.user).data,
         })
 
-
 class LoginAdminController(APIView):
     permission_classes = [AllowAny]
+    authentication_classes = [] 
 
     def post(self, request):
         ser = LoginAdminSerializer(data=request.data)
@@ -74,17 +78,25 @@ class LoginAdminController(APIView):
             return Response(ser.errors, status=400)
 
         admin = connecter_admin(
-            ser.validated_data['email'],       # ← email
+            ser.validated_data['email'],
             ser.validated_data['password'],
         )
         if not admin:
             return Response({'error': 'Identifiants invalides'}, status=401)
 
-        request.session['admin_id'] = admin.pk
-        request.session['admin_username'] = admin.username
+        admin.derniere_connexion = timezone.now()
+        admin.save(update_fields=['derniere_connexion'])
+
+        refresh = RefreshToken()
+        
+        refresh['user_id'] = admin.pk
+        refresh['type'] = 'admin'
+        refresh['username'] = admin.username
 
         return Response({
             'type': 'admin',
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
             **LoginadminSerializer(admin).data,
         })
 
@@ -108,3 +120,33 @@ class MeAdminController(APIView):
             'type': 'admin',
             **LoginadminSerializer(admin).data,
         })
+
+class RegisterAdminController(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = [] 
+    def post(self, request):
+        serializer = CreerLoginadminSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+        validated_data = serializer.validated_data
+        try:
+            new_admin = register_admin(
+                username=validated_data['username'],
+                password=validated_data['password'],
+                email=validated_data['email'],
+                nom=validated_data['nom'],
+                prenom=validated_data['prenom']
+            )
+            
+            return Response({
+                "message": "Administrateur créé avec succès !",
+                "admin": {
+                    "id": new_admin.id,
+                    "username": new_admin.username,
+                    "email": new_admin.email
+                }
+            }, status=status.HTTP_201_CREATED)
+            
+        except ValidationError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

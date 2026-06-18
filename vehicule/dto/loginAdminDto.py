@@ -50,5 +50,5 @@ class CreerLoginadminSerializer(serializers.ModelSerializer):
 
 
 class LoginAdminSerializer(serializers.Serializer):
-    email = serializers.EmailField()        # ← était username
+    email = serializers.EmailField(required=True)
     password = serializers.CharField(write_only=True)

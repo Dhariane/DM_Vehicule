@@ -4,6 +4,7 @@ from .authService import (
     get_tokens_for_user,
     get_admin_session,
     is_admin,
+    register_admin
 )
 from .demandeurService import (
     get_all_demandeurs,

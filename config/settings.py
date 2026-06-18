@@ -125,7 +125,7 @@ DATABASES = {
         'HOST': os.getenv('SUPABASE_DB_HOST'),
         'PORT': os.getenv('SUPABASE_DB_PORT'),
         'OPTIONS': {
-            'sslmode': 'require', # Sécurise la connexion avec Supabase
+            'sslmode': os.getenv('DB_SSLMODE', 'require'), 
         },
     }
 }

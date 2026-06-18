@@ -1,4 +1,7 @@
-from django.contrib.auth.hashers import check_password
+from xml.dom import ValidationErr
+
+from django.contrib.auth.hashers import check_password, make_password
+from django.contrib.auth import authenticate
 from django.utils import timezone
 from rest_framework_simplejwt.tokens import RefreshToken
 from vehicule.models import Demandeur, Loginadmin
@@ -12,11 +15,9 @@ def get_tokens_for_user(user):
     }
 
 
-def connecter_utilisateur(email, password):
-    """Cherche l'utilisateur par email et vérifie le mot de passe."""
-    try:
-        user = Demandeur.objects.get(email=email)
-    except Demandeur.DoesNotExist:
+def connecter_utilisateur(email, password, request):
+    user = authenticate(request, email=email, password=password)
+    if not user:
         return None, "Identifiants invalides"
 
     if not user.check_password(password):
@@ -29,7 +30,6 @@ def connecter_utilisateur(email, password):
 
 
 def connecter_admin(email, password):
-    """Cherche l'admin par email et vérifie le mot de passe."""
     try:
         admin = Loginadmin.objects.get(email=email, is_active=True)
     except Loginadmin.DoesNotExist:
@@ -55,3 +55,23 @@ def get_admin_session(request):
 
 def is_admin(request):
     return get_admin_session(request) is not None
+
+def register_admin(username, password, email, nom, prenom):
+        if Loginadmin.objects.filter(username=username).exists():
+            raise ValidationErr("Ce nom d'utilisateur est déjà pris.")
+            
+        if Loginadmin.objects.filter(email=email).exists():
+            raise ValidationErr("Cet email est déjà utilisé.")
+
+        hashed_password = make_password(password)
+
+        new_admin = Loginadmin(
+            username=username,
+            password=hashed_password,
+            email=email,
+            nom=nom,
+            prenom=prenom
+        )
+        new_admin.save()
+        
+        return new_admin
