@@ -124,6 +124,7 @@ class MeAdminController(APIView):
 
 class RegisterAdminController(APIView):
     permission_classes = [AllowAny]
+    authentication_classes = [] 
     def post(self, request):
         serializer = CreerLoginadminSerializer(data=request.data)
         if not serializer.is_valid():
