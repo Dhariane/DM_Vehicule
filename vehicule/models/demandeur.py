@@ -7,6 +7,7 @@ class Demandeur(AbstractUser):
         ('Demandeur', 'Demandeur'),
         ('Chef', 'Chef Direct'),
         ('Logistique', 'Responsable Logistique'),
+        ('Directeur', 'Directeur'),
     ]
 
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='Demandeur')

@@ -5,7 +5,6 @@ class Vehicule(models.Model):
     immatriculation = models.CharField(max_length=20, unique=True)
     marque = models.CharField(max_length=50)
     modele = models.CharField(max_length=50)
-    capacite = models.IntegerField(help_text="Nombre de places")
     disponible = models.BooleanField(default=True)
 
     class Meta:
