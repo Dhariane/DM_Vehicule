@@ -5,6 +5,7 @@ from .authControllers import (
     LoginAdminController,
     LogoutAdminController,
     MeAdminController,
+    RegisterAdminController,
 )
 from .demandeurControllers import (
     DemandeurListCreateController,

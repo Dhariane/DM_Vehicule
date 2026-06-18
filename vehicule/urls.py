@@ -1,12 +1,14 @@
 from django.urls import path
+from django.views.decorators.csrf import csrf_exempt
 from vehicule.controllers import (
     LoginController, LogoutController, MeController,
-    LoginAdminController, LogoutAdminController, MeAdminController,
+    LogoutAdminController, MeAdminController,
     DemandeurListCreateController, DemandeurDetailController,
     ChauffeurListCreateController, ChauffeurDetailController,
     VehiculeListCreateController, VehiculeDetailController,
     MesDemandesController, DetailDemandeController,
     ValidationListController, ValidationActionController,
+    RegisterAdminController
 )
 
 urlpatterns = [
@@ -16,9 +18,9 @@ urlpatterns = [
     path('auth/me/', MeController.as_view()),
 
     # Auth admin
-    path('auth/admin/login/', LoginAdminController.as_view()),
     path('auth/admin/logout/', LogoutAdminController.as_view()),
     path('auth/admin/me/', MeAdminController.as_view()),
+    path('auth/admin/register/', RegisterAdminController.as_view()),
 
     # Demandeurs
     path('demandeurs/', DemandeurListCreateController.as_view()),

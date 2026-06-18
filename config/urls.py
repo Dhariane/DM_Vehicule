@@ -16,8 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-
+from django.views.decorators.csrf import csrf_exempt
+from vehicule.controllers import (
+    LoginAdminController,
+)
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('api/auth/admin/login/', csrf_exempt(LoginAdminController.as_view())),
     path('api/', include('vehicule.urls')),
 ]

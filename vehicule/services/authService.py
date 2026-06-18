@@ -1,11 +1,38 @@
-from django.contrib.auth.hashers import check_password
+from xml.dom import ValidationErr
+
+from django.contrib.auth.hashers import check_password, make_password
+from django.contrib.auth import authenticate
 from django.utils import timezone
-from vehicule.models import Loginadmin
+from django.core.exceptions import ValidationError
+from rest_framework_simplejwt.tokens import RefreshToken
+from vehicule.models import Demandeur, Loginadmin
 
 
-def connecter_admin(username, password):
+def get_tokens_for_user(user):
+    refresh = RefreshToken.for_user(user)
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
+
+
+def connecter_utilisateur(email, password, request):
+    user = authenticate(request, email=email, password=password)
+    if not user:
+        return None, "Identifiants invalides"
+
+    if not user.check_password(password):
+        return None, "Identifiants invalides"
+
+    if not user.is_active:
+        return None, "Compte désactivé"
+
+    return user, None
+
+
+def connecter_admin(email, password):
     try:
-        admin = Loginadmin.objects.get(username=username, is_active=True)
+        admin = Loginadmin.objects.get(email=email, is_active=True)
     except Loginadmin.DoesNotExist:
         return None
 
@@ -29,3 +56,23 @@ def get_admin_session(request):
 
 def is_admin(request):
     return get_admin_session(request) is not None
+
+def register_admin(username, password, email, nom, prenom):
+        if Loginadmin.objects.filter(username=username).exists():
+            raise ValidationErr("Ce nom d'utilisateur est déjà pris.")
+            
+        if Loginadmin.objects.filter(email=email).exists():
+            raise ValidationErr("Cet email est déjà utilisé.")
+
+        hashed_password = make_password(password)
+
+        new_admin = Loginadmin(
+            username=username,
+            password=hashed_password,
+            email=email,
+            nom=nom,
+            prenom=prenom
+        )
+        new_admin.save()
+        
+        return new_admin
