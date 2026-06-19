@@ -14,4 +14,4 @@ class Chauffeur(models.Model):
         ordering = ['nom', 'prenom']
 
     def __str__(self):
-        return f"{self.prenom} {self.nom} ({self.numero_permis})"
+        return f"{self.prenom} {self.nom}"

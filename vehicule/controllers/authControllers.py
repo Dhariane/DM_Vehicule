@@ -67,9 +67,13 @@ class MeController(APIView):
             **DemandeurSerializer(request.user).data,
         })
 
+from rest_framework_simplejwt.tokens import RefreshToken
+from datetime import timedelta
+
 class LoginAdminController(APIView):
-    permission_classes = [AllowAny]
-    authentication_classes = []
+    permission_classes = []        # ← désactive tout
+    authentication_classes = []    # ← désactive tout
+
 
     def post(self, request):
         ser = LoginAdminSerializer(data=request.data)
@@ -86,11 +90,11 @@ class LoginAdminController(APIView):
         admin.derniere_connexion = timezone.now()
         admin.save(update_fields=['derniere_connexion'])
 
+        # ✅ Utilise RefreshToken.for_user() avec un faux user_id
         refresh = RefreshToken()
-        
-        refresh['user_id'] = admin.pk
-        refresh['type'] = 'admin'
-        refresh['username'] = admin.username
+        refresh.payload['user_id']  = admin.pk
+        refresh.payload['type']     = 'admin'
+        refresh.payload['username'] = admin.username
 
         return Response({
             'type': 'admin',

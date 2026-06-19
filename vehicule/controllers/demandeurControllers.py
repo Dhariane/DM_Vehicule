@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from permission import IsJWTAdmin
+from vehicule.controllers.adminControllers import check_admin
 from vehicule.dto import (
     DemandeurSerializer,
     CreerDemandeurSerializer,
@@ -21,15 +22,16 @@ class DemandeurListCreateController(APIView):
     permission_classes = [IsJWTAdmin]
 
     def get(self, request):
-            
-        role_filter = request.query_params.get('role', None)
-        
-        if role_filter:
-            users = Demandeur.objects.filter(role=role_filter, is_active=True)
-        else:
-            users = get_all_demandeurs() 
-            
-        return Response(DemandeurSerializer(users, many=True).data)
+        err = check_admin(request)
+        if err:
+            return err
+        users = get_all_demandeurs()
+        # ✅ Retourner au format paginé attendu par le frontend
+        serialized = DemandeurSerializer(users, many=True).data
+        return Response({
+            'results': serialized,
+            'count': len(serialized),
+        })
 
     def post(self, request):
         ser = CreerDemandeurSerializer(data=request.data)

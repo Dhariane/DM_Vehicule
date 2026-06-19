@@ -2,7 +2,8 @@ from .authService import (
     connecter_utilisateur,
     connecter_admin,
     get_tokens_for_user,
-    register_admin
+    register_admin,
+    is_admin, 
 )
 from .demandeurService import (
     get_all_demandeurs,

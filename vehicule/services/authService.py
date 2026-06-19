@@ -71,3 +71,29 @@ def register_admin(username, password, email, nom, prenom):
         new_admin.save()
         
         return new_admin
+from rest_framework_simplejwt.tokens import UntypedToken
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+import jwt
+from django.conf import settings
+
+def is_admin(request):
+    auth_header = request.headers.get('Authorization', '')
+    print(">>> AUTH HEADER:", auth_header)
+    
+    if not auth_header.startswith('Bearer '):
+        print(">>> PAS DE BEARER TOKEN")
+        return False
+    
+    token_str = auth_header.split(' ')[1]
+    print(">>> TOKEN:", token_str[:50], "...")
+    
+    try:
+        import jwt
+        from django.conf import settings
+        payload = jwt.decode(token_str, settings.SECRET_KEY, algorithms=['HS256'])
+        print(">>> PAYLOAD:", payload)
+        print(">>> TYPE:", payload.get('type'))
+        return payload.get('type') == 'admin'
+    except Exception as e:
+        print(">>> ERREUR JWT:", e)
+        return False
