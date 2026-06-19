@@ -11,7 +11,6 @@ from vehicule.services import (
     desactiver_chauffeur,
 )
 
-
 class ChauffeurListCreateController(APIView):
     permission_classes = [IsJWTAdmin]
 
@@ -52,3 +51,4 @@ class ChauffeurDetailController(APIView):
             return Response({'error': 'Introuvable'}, status=404)
         desactiver_chauffeur(chauffeur)
         return Response(status=204)
+    
