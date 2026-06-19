@@ -36,15 +36,12 @@ ALLOWED_HOSTS = []
 
 # Application definition
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',  # ← bloque tout sans JWT valide
-    ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',  # ← rejette ton token custom
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
-    'DEFAULT_AUTHENTICATION_CLASSES': [],   # ← vide globalement
-    'DEFAULT_PERMISSION_CLASSES': [],       # ← vide globalement
-
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',  # géré manuellement par controller
+    ],
 }
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',

@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from vehicule.models.financement import Financement
 
 
 class Demandeur(AbstractUser):
@@ -12,9 +13,17 @@ class Demandeur(AbstractUser):
     email = models.EmailField(unique=True)
 
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='Demandeur')
+
     telephone = models.CharField(max_length=20, blank=True)
+
     service = models.CharField(max_length=100, blank=True)
+
     poste = models.CharField(max_length=100, blank=True)
+
+    financement = models.ForeignKey(
+        Financement,                            
+        on_delete=models.SET_NULL, null=True, blank=True)
+    
     chef_direct = models.ForeignKey(
         'self',
         on_delete=models.SET_NULL,

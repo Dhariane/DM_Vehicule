@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from vehicule.dto import DemandeVehiculeSerializer, CreerDemandeSerializer
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from vehicule.services import (
     get_mes_demandes,
     get_demande_by_id,
@@ -11,6 +12,8 @@ from vehicule.services import (
 
 
 class MesDemandesController(APIView):
+    # permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -30,6 +33,7 @@ class MesDemandesController(APIView):
 
 class DetailDemandeController(APIView):
     permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     def get(self, request, pk):
         demande = get_demande_by_id(pk, request.user)

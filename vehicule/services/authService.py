@@ -97,3 +97,25 @@ def is_admin(request):
     except Exception as e:
         print(">>> ERREUR JWT:", e)
         return False
+
+def get_user_from_token(request):
+    """Retourne l'utilisateur depuis le token JWT utilisateur."""
+    auth_header = request.headers.get('Authorization', '')
+    if not auth_header.startswith('Bearer '):
+        return None
+    
+    token_str = auth_header.split(' ')[1]
+    try:
+        import jwt
+        from django.conf import settings
+        payload = jwt.decode(token_str, settings.SECRET_KEY, algorithms=['HS256'])
+        
+        # Token admin → refuser
+        if payload.get('type') == 'admin':
+            return None
+            
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        return User.objects.get(pk=payload.get('user_id'))
+    except Exception:
+        return None
