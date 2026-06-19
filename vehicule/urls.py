@@ -30,6 +30,10 @@ from vehicule.controllers.vehiculeControllers import (
     VehiculeDetailController,
 )
 
+from vehicule.controllers.financementControllers import (
+    FinancementListCreateController,
+    FinancementDetailController,
+)
 urlpatterns = [
     # ── Auth utilisateur JWT ──────────────────────────
     path('auth/login/', LoginController.as_view()),
@@ -60,4 +64,7 @@ urlpatterns = [
     path('vehicules/<int:pk>/', VehiculeDetailController.as_view()),
     path('chauffeurs/', ChauffeurListCreateController.as_view()),
     path('chauffeurs/<int:pk>/', ChauffeurDetailController.as_view()),
+    #---------financement-------
+    path('financements/', FinancementListCreateController.as_view()),
+    path('financements/<int:pk>/', FinancementDetailController.as_view()),
 ]

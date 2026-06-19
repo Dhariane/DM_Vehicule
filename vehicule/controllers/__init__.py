@@ -5,11 +5,23 @@ from .authControllers import (
     LoginAdminController,
     LogoutAdminController,
     MeAdminController,
-    RegisterAdminController,
 )
-from .demandeurControllers import (
-    DemandeurListCreateController,
-    DemandeurDetailController,
+from .adminControllers import (
+    AdminStatsController,
+    AdminDemandeurListCreateController,
+    AdminDemandeurDetailController,
+    AdminVehiculeListCreateController,
+    AdminVehiculeDetailController,
+    AdminChauffeurListCreateController,
+    AdminChauffeurDetailController,
+)
+from .demandeControllers import (
+    MesDemandesController,
+    DetailDemandeController,
+)
+from .validationControllers import (
+    ValidationListController,
+    ValidationActionController,
 )
 from .chauffeurControllers import (
     ChauffeurListCreateController,
@@ -19,11 +31,7 @@ from .vehiculeControllers import (
     VehiculeListCreateController,
     VehiculeDetailController,
 )
-from .demandeControllers import (       # ← était demandeurControllers, c'est faux
-    MesDemandesController,
-    DetailDemandeController,
-)
-from .validationControllers import (
-    ValidationListController,
-    ValidationActionController,
+from .financementControllers import (  # ← nouveau
+    FinancementListCreateController,
+    FinancementDetailController,
 )

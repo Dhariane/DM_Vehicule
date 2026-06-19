@@ -27,3 +27,7 @@ from .demandeVehiculeDto import (
     DemandeVehiculeSerializer,
     CreerDemandeSerializer,
 )
+from .financementDto import (          # ← nouveau
+    FinancementSerializer,
+    CreerFinancementSerializer,
+)

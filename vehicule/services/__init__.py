@@ -1,9 +1,9 @@
 from .authService import (
+    get_tokens_for_user,
     connecter_utilisateur,
     connecter_admin,
-    get_tokens_for_user,
+    is_admin,
     register_admin,
-    is_admin, 
 )
 from .demandeurService import (
     get_all_demandeurs,
@@ -42,4 +42,11 @@ from .emailService import (
     envoyer_email_chef,
     envoyer_email_decision,
     envoyer_email_approbation_finale,
+)
+from .financementService import (      # ← nouveau
+    get_all_financements,
+    get_financement_by_id,
+    creer_financement,
+    modifier_financement,
+    supprimer_financement,
 )
