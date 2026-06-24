@@ -13,11 +13,13 @@ from .chauffeurDto import (
     ChauffeurSerializer,
     CreerChauffeurSerializer,
     UpdateChauffeurSerializer,
+    
 )
 from .vehiculeDto import (
     VehiculeSerializer,
     CreerVehiculeSerializer,
     UpdateVehiculeSerializer,
+    
 )
 from .validationDto import (
     ValidationDemandeSerializer,
@@ -26,4 +28,8 @@ from .validationDto import (
 from .demandeVehiculeDto import (
     DemandeVehiculeSerializer,
     CreerDemandeSerializer,
+)
+from .financementDto import (          # ← nouveau
+    FinancementSerializer,
+    CreerFinancementSerializer,
 )

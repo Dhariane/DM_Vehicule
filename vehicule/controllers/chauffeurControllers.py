@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
-from permission import IsJWTAdmin
+from permission import IsJWTAdmin, IsJWTAdminOrLogistique
 from vehicule.dto import ChauffeurSerializer, CreerChauffeurSerializer
 from vehicule.services import (
     get_all_chauffeurs,
@@ -12,7 +12,7 @@ from vehicule.services import (
 )
 
 class ChauffeurListCreateController(APIView):
-    permission_classes = [IsJWTAdmin]
+    permission_classes = [IsJWTAdminOrLogistique]
 
     def get(self, request):
         chauffeurs = get_all_chauffeurs()
@@ -24,10 +24,14 @@ class ChauffeurListCreateController(APIView):
             return Response(ser.errors, status=400)
         chauffeur = creer_chauffeur(ser.validated_data)
         return Response(ChauffeurSerializer(chauffeur).data, status=201)
-
+    
+    def get_permissions(self):
+            if self.request.method == 'GET':
+                return [IsJWTAdminOrLogistique()]
+            return [IsJWTAdmin()]
 
 class ChauffeurDetailController(APIView):
-    permission_classes = [IsJWTAdmin]
+    permission_classes = [IsJWTAdminOrLogistique]
 
     def get(self, request, pk):
         chauffeur = get_chauffeur_by_id(pk)

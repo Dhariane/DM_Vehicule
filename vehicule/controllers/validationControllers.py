@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from vehicule.models import DemandeVehicule
 from vehicule.dto import DemandeVehiculeSerializer, ValiderDemandeSerializer
 from vehicule.services import demandes_a_valider, traiter_validation
@@ -41,3 +42,45 @@ class ValidationActionController(APIView):
             return Response(DemandeVehiculeSerializer(demande).data)
         except ValueError as e:
             return Response({'error': str(e)}, status=400)
+        
+class ValidationListController(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        print(">>> USER:", request.user)
+        print(">>> USER EMAIL:", request.user.email)
+        print(">>> USER ROLE:", request.user.role)
+        print(">>> USER TYPE:", type(request.user))
+        demandes = demandes_a_valider(request.user)
+        print(">>> DEMANDES COUNT:", demandes.count())
+        return Response(DemandeVehiculeSerializer(demandes, many=True).data)
+    
+# validationControllers.py
+class TerminerMissionController(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            demande = DemandeVehicule.objects.select_related(
+                'vehicule', 'chauffeur'
+            ).get(pk=pk)
+        except DemandeVehicule.DoesNotExist:
+            return Response({'error': 'Demande introuvable'}, status=404)
+
+        if demande.statut != 'approuvee':
+            return Response({'error': 'Seules les demandes approuvées peuvent être terminées'}, status=400)
+
+        # Libérer véhicule et chauffeur
+        if demande.vehicule:
+            demande.vehicule.disponible = True
+            demande.vehicule.save(update_fields=['disponible'])
+
+        if demande.chauffeur:
+            demande.chauffeur.disponible = True
+            demande.chauffeur.save(update_fields=['disponible'])
+
+        demande.statut = 'terminee'
+        demande.save(update_fields=['statut'])
+
+        return Response({'message': 'Mission terminée, ressources libérées'})
