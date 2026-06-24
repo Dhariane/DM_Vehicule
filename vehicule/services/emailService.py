@@ -163,3 +163,76 @@ def envoyer_email_approbation_finale(demande):
         body_html=_base_html("Mission approuvée — Véhicule & Chauffeur affectés", contenu),
         to_list=[demandeur.email],
     )
+
+def envoyer_email_logistique(demande):
+    from vehicule.models import Demandeur
+    
+    # Envoyer à tous les utilisateurs avec le rôle Logistique
+    logisticiens = Demandeur.objects.filter(role='Logistique', is_active=True)
+    
+    emails = [l.email for l in logisticiens if l.email]
+    if not emails:
+        print("[EMAIL] Aucun logisticien avec email trouvé")
+        return
+
+    demandeur = demande.demandeur
+    contenu = f"""
+    <p>Bonjour,</p>
+    <p>
+      <strong>{demandeur.get_full_name() or demandeur.username}</strong>
+      ({demandeur.poste}) a soumis une demande de véhicule
+      qui nécessite votre validation (sans chef direct).
+    </p>
+    <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+      {_ligne('Destination', demande.destination, gris=True)}
+      {_ligne('Motif', demande.get_motif_display())}
+      {_ligne('Date départ', demande.date_depart.strftime('%d/%m/%Y %H:%M'), gris=True)}
+      {_ligne('Date retour', demande.date_retour.strftime('%d/%m/%Y %H:%M'))}
+      {_ligne('Passagers', demande.nombre_passagers, gris=True)}
+    </table>
+    <p>Connectez-vous à l'application pour traiter cette demande.</p>
+    """
+
+    _envoyer(
+        subject=f"[Validation requise] Demande de {demandeur.get_full_name()}",
+        body_text=f"Demande de {demandeur.get_full_name()} vers {demande.destination}",
+        body_html=_base_html("Demande en attente de votre validation", contenu),
+        to_list=emails,
+    )
+
+def envoyer_email_credentials(user, password):
+    """Envoie les identifiants de connexion au nouvel utilisateur."""
+    if not user.email:
+        return
+
+    nom_complet = user.get_full_name() or user.username
+
+    contenu = f"""
+    <p>Bonjour <strong>{nom_complet}</strong>,</p>
+    <p>
+      Votre compte sur l'application de gestion des véhicules
+      <strong>UCP Santé</strong> a été créé.
+      Voici vos identifiants de connexion :
+    </p>
+    <div style="background:#f0f7f3;border-radius:8px;padding:20px;margin:16px 0;">
+      <table style="width:100%;border-collapse:collapse;">
+        {_ligne('📧 Email', user.email, gris=False)}
+        {_ligne('🔑 Mot de passe', password, gris=True)}
+        {_ligne('👤 Poste', user.poste or '-', gris=False)}
+        {_ligne('🏢 Service', user.service or '-', gris=True)}
+      </table>
+    </div>
+    <p>
+      Connectez-vous sur :
+      <a href="http://localhost:3000/login" style="color:#1a5c38;font-weight:bold;">
+        http://localhost:3000/login
+      </a>
+    </p>
+    """
+
+    _envoyer(
+        subject="🚗 UCP Santé — Vos identifiants de connexion",
+        body_text=f"Email: {user.email} | Mot de passe: {password}",
+        body_html=_base_html("Bienvenue sur UCP Santé — Gestion des véhicules", contenu),
+        to_list=[user.email],
+    )

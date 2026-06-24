@@ -8,6 +8,7 @@ from vehicule.services.emailService import (
     envoyer_email_chef,
     envoyer_email_decision,
     envoyer_email_approbation_finale,
+    envoyer_email_logistique
 )
 
 ETAPES = ['chef', 'logistique', 'directeur', 'termine']
@@ -42,6 +43,12 @@ def creer_demande(demandeur, data):
     if data['date_retour'] <= data['date_depart']:
         raise ValueError("La date de retour doit être après le départ.")
 
+    # ✅ Si pas de chef direct → passer directement au logistique
+    if demandeur.chef_direct:
+        etape_initiale = 'chef'
+    else:
+        etape_initiale = 'logistique'
+
     demande = DemandeVehicule.objects.create(
         demandeur=demandeur,
         motif=data['motif'],
@@ -50,11 +57,16 @@ def creer_demande(demandeur, data):
         date_depart=data['date_depart'],
         date_retour=data['date_retour'],
         nombre_passagers=data.get('nombre_passagers', 1),
-        etape_validation='chef',
+        etape_validation=etape_initiale,
         statut='en_attente',
     )
 
-    envoyer_email_chef(demande)
+    # ✅ Envoyer l'email selon l'étape
+    if etape_initiale == 'chef':
+        envoyer_email_chef(demande)
+    else:
+        envoyer_email_logistique(demande)  # ← à créer dans emailService.py
+
     return demande
 
 
@@ -90,7 +102,6 @@ def traiter_validation(demande, validateur, decision,
     _verifier_droit_validation(demande, validateur)
 
     etape_courante = demande.etape_validation
-
     creer_validation(demande, validateur, etape_courante, decision, commentaire)
 
     if decision == 'rejete':
@@ -102,14 +113,20 @@ def traiter_validation(demande, validateur, decision,
     if etape_courante == 'logistique':
         if vehicule_id:
             vehicule = get_vehicule_by_id(vehicule_id)
-            if not vehicule or not vehicule.disponible:
-                raise ValueError("Véhicule introuvable ou indisponible.")
+            if not vehicule:
+                raise ValueError("Véhicule introuvable.")
+            # Vérifier disponibilité sur la période
+            if not vehicule.est_disponible_pour(demande.date_depart, demande.date_retour):
+                raise ValueError("Ce véhicule est déjà réservé sur cette période.")
             demande.vehicule = vehicule
 
         if chauffeur_id:
             chauffeur = get_chauffeur_by_id(chauffeur_id)
-            if not chauffeur or not chauffeur.disponible:
-                raise ValueError("Chauffeur introuvable ou indisponible.")
+            if not chauffeur:
+                raise ValueError("Chauffeur introuvable.")
+            # Vérifier disponibilité sur la période
+            if not chauffeur.est_disponible_pour(demande.date_depart, demande.date_retour):
+                raise ValueError("Ce chauffeur est déjà assigné sur cette période.")
             demande.chauffeur = chauffeur
 
     prochaine = _etape_suivante(etape_courante)
@@ -117,12 +134,8 @@ def traiter_validation(demande, validateur, decision,
     if prochaine == 'termine':
         demande.statut = 'approuvee'
         demande.etape_validation = 'termine'
-        if demande.vehicule:
-            demande.vehicule.disponible = False
-            demande.vehicule.save(update_fields=['disponible'])
-        if demande.chauffeur:
-            demande.chauffeur.disponible = False
-            demande.chauffeur.save(update_fields=['disponible'])
+        # ← Plus de disponible=False ici !
+        # La disponibilité est calculée dynamiquement via est_disponible_pour()
         demande.save(update_fields=[
             'statut', 'etape_validation',
             'vehicule', 'chauffeur', 'date_modification',
@@ -137,7 +150,6 @@ def traiter_validation(demande, validateur, decision,
         envoyer_email_decision(demande, etape_courante, 'approuve', commentaire)
 
     return demande
-
 
 def demandes_a_valider(user):
     role = user.role

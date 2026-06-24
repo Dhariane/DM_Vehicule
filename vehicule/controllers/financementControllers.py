@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from vehicule.dto.financementDto import FinancementSerializer, CreerFinancementSerializer
 from vehicule.services.financementService import (
-    is_admin,
     get_all_financements,
     get_financement_by_id,
     creer_financement,

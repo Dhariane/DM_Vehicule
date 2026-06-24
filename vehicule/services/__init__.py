@@ -25,6 +25,9 @@ from .vehiculeService import (
     creer_vehicule,
     modifier_vehicule,
     desactiver_vehicule,
+    get_vehicules_en_mission,
+    get_vehicules_disponibles_pour,
+    get_vehicules_disponibles
 )
 from .validateurService import (
     get_validations_by_demande,
@@ -42,6 +45,7 @@ from .emailService import (
     envoyer_email_chef,
     envoyer_email_decision,
     envoyer_email_approbation_finale,
+    envoyer_email_logistique
 )
 from .financementService import (      # ← nouveau
     get_all_financements,

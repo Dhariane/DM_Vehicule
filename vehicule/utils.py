@@ -21,3 +21,22 @@ class IsAuthenticatedOrAdminSession(BasePermission):
         if request.session.get('admin_id'):
             return True
         return False
+
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.permissions import BasePermission
+
+
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+    def enforce_csrf(self, request):
+        return
+
+
+def is_admin_or_logistique(request):
+    """Admin session OU utilisateur avec rôle Logistique."""
+    # Admin session
+    if request.session.get('admin_id'):
+        return True
+    # Utilisateur JWT logistique
+    if request.user and request.user.is_authenticated:
+        return getattr(request.user, 'role', None) == 'Logistique'
+    return False

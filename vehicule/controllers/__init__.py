@@ -29,7 +29,7 @@ from .chauffeurControllers import (
 )
 from .vehiculeControllers import (
     VehiculeListCreateController,
-    VehiculeDetailController,
+    
 )
 from .financementControllers import (  # ← nouveau
     FinancementListCreateController,

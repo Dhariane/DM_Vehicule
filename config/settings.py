@@ -127,7 +127,12 @@ DATABASES = {
     }
 }
 
+from datetime import timedelta
 
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME':  timedelta(hours=8),   # 8h au lieu de 5min
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
@@ -163,3 +168,20 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+
+
+# settings.py
+EMAIL_BACKEND     = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST        = 'smtp.gmail.com'
+EMAIL_PORT        = 587
+EMAIL_USE_TLS     = True
+EMAIL_HOST_USER   = 'naly.fitahiana@gmail.com'
+EMAIL_HOST_PASSWORD = 'ktjezegyktdbnoaq'  # pas le vrai mot de passe Gmail !
+DEFAULT_FROM_EMAIL = 'UCP Santé <naly.fitahiana@gmail.com>'
+
+EMAIL_SSL_CERTFILE = None
+EMAIL_SSL_KEYFILE  = None
+EMAIL_TIMEOUT      = 10
+
+EMAIL_BACKEND = 'vehicule.email_backend.SSLEmailBackend'
