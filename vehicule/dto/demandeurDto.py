@@ -68,7 +68,7 @@ Identifiants d'accès :
 - Email : {user.email}
 - Mot de passe : {password}
 
-Lien de connexion : https://votre-application.ucpsante.org/login
+Lien de connexion : https://localhost:3000
 
 Cordialement,
 L'équipe UCP Santé"""
